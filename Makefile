@@ -1,0 +1,105 @@
+CC = g++
+
+#OS detecting
+ifeq ($(OS),Windows_NT)
+    DETECTED_OS := Windows
+    FILE_SUFFIX := .exe
+    COMMON_ADD_DIR = $(shell if not exist "$(dir $@)" md "$(dir $@)")
+    COMMON_CLEAN = $(shell if exist "$(BUILD_PATH_BASE)" rd /s /q "$(BUILD_PATH_BASE)")
+else
+    DETECTED_OS := $(shell uname -s)
+    FILE_SUFFIX := .out
+    COMMON_ADD_DIR = $(shell mkdir -p "$(dir $@)" )
+    COMMON_CLEAN = $(shell rm -rf "$(BUILD_PATH_BASE)")
+endif
+
+$(info The system is $(DETECTED_OS))
+
+#Debug or Release ,default is Release
+#using VERSION=Debug to used Debug mode,like:
+# "make MODE=Debug" or "make clean MODE=Debug" and so on
+MODE ?= Release
+VER_FLAG =
+
+CXXFLAGS = -std=c++11
+
+DEBUG_FLAGS ?= -ggdb -Wall -O0
+RELEASE_FLAGS ?= -Wall -O3
+
+BUILD_PATH_BASE = build
+BUILD_PATH =
+SRC_PATH = src
+OBJ_PATH = $(BUILD_PATH)/obj
+
+#output config here
+PRO_NAME := main
+OUT_EXEC := $(PRO_NAME)$(FILE_SUFFIX)
+OUTPUT_BASE = $(BUILD_PATH)/$(OUT_EXEC)
+
+#output debug config
+OUT_EXEC_DEBUG := $(patsubst %.out,%d.out,$(OUT_EXEC))
+OUTPUT_DEBUG := $(BUILD_PATH_DEBUG)/$(OUT_EXEC_DEBUG)
+
+#library include head like -I/usr/local/include
+INCLUDE_PATH ?=
+
+#library like -L/usr/local/lib
+LIB_PATH ?=
+
+#library like -lgtest or -l:gtest.a
+LIB ?=
+
+#all path config here
+ifeq ($(OS),Windows_NT)
+    LOCAL_DIRS := $(shell cd)
+    DIRS :=$(LOCAL_DIRS)\$(SRC_PATH) $(shell dir "$(SRC_PATH)" /s/b/o:n/A:D)
+    DIRS := $(subst $(LOCAL_DIRS)\,, $(DIRS))
+    DIRS := $(subst \,/, $(DIRS))
+else
+    DIRS := $(shell find $(SRC_PATH) -maxdepth 4 -type d)
+endif
+DIRS := $(patsubst %, %/, $(DIRS))
+
+FILES_CPP := $(foreach dir,$(DIRS),$(wildcard $(dir)*.cpp))
+
+OBJ = $(patsubst $(SRC_PATH)%.cpp,$(OBJ_PATH)%.o, $(FILES_CPP))
+
+ifeq ($(MODE),Debug)
+    VER_FLAG = $(DEBUG_FLAGS)
+    BUILD_PATH = $(BUILD_PATH_BASE)/debug
+    DEBUG_OUTPUT =$(basename $(OUTPUT_BASE))d$(suffix $(OUTPUT_BASE))
+    OUTPUT = $(DEBUG_OUTPUT)
+else
+    VER_FLAG =$(RELEASE_FLAGS)
+    BUILD_PATH = $(BUILD_PATH_BASE)/release
+    OUTPUT = $(OUTPUT_BASE)
+endif
+
+
+DEFAULT: $(OUTPUT)
+$(OUTPUT): $(OBJ)
+	$(CC)  -o $@ $^ $(LIB_PATH) $(LIB)
+	$(info Link data to >>>>>>>>>> $@)
+
+$(OBJ_PATH)/%.o: $(SRC_PATH)/%.cpp
+	$(COMMON_ADD_DIR)
+	$(CC) $(CXXFLAGS) $(VER_FLAG) -c -o $@ $^ $(INCLUDE_PATH)
+	$(info Compile obj >>>>>>>>>>> $@)
+
+.PHONY:clean run show
+clean:
+	$(COMMON_CLEAN)
+	@echo clean data.
+
+run: $(OUTPUT)
+	$(OUTPUT)
+
+show:
+	echo BUILD_PATH: $(BUILD_PATH)
+	echo LOCAL_DIRS: $(LOCAL_DIRS)
+	echo DIRS: $(DIRS)
+	echo FILES_CPP: $(FILES_CPP)
+	echo OBJ: $(OBJ)
+	echo OUTPUT: $(OUTPUT)
+	echo BUILD_PATH :$(BUILD_PATH)
+	echo OS: $(OS)

@@ -1,14 +1,16 @@
 # GeneralMakefile
 A c++ single Makefile which can using support OS in win/unix-like(linux mac ...),and no config(if you using g++).
 
-* [How to use?](#How to use?)
-  *  [source code in which?](#source code in which?)
-  * [using make](#using make)
-    * [Default version is Release](#Default version is Release)
-    * [Make Debug version](#Make Debug version)
-    * [Run what your make](#Run what your make)
-    * [Clean](#Clean)
-* [try test](#try test)
+* [GeneralMakefile](#generalmakefile )
+  * [How to use?](#how-to-use )
+      * [source code in which?](#source-code-in-which )
+      * [using make](#using-make )
+          * [Default version is Release](#default-version-is-release )
+          * [Make Debug version](#make-debug-version )
+          * [Run what your make](#run-what-your-make )
+          * [Clean](#clean )
+  * [try test](#try-test )
+
 ## How to use?
 ### source code in which?
 Source code all in path *"src"*

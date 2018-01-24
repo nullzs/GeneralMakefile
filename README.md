@@ -66,8 +66,17 @@ make run
 ```
 or
 ```
-make run MODE=Debug
+make run  MODE=Debug
 ```
+if you want to add params you should append "ARGS=myparams"
+like
+```
+make run ARGS=100
+```
+```
+make run ARGS=100 MODE=Debug
+```
+
 
 #### Clean
 ```

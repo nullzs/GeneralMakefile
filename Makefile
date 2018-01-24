@@ -91,8 +91,9 @@ clean:
 	$(COMMON_CLEAN)
 	@echo clean data.
 
+ARGS?=
 run: $(OUTPUT)
-	$(OUTPUT)
+	$(OUTPUT) $(ARGS)
 
 show:
 	echo BUILD_PATH: $(BUILD_PATH)

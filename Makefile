@@ -6,11 +6,22 @@ ifeq ($(OS),Windows_NT)
     FILE_SUFFIX := .exe
     COMMON_ADD_DIR = $(shell if not exist "$(dir $@)" md "$(dir $@)")
     COMMON_CLEAN = $(shell if exist "$(BUILD_PATH_BASE)" rd /s /q "$(BUILD_PATH_BASE)")
+    #like -L"D:/boost_1_65_1/stage/lib/" -L"D:/googletest/googletest/build/"
+    LIB_PATH =
+    #-lboost_system-mgw49-mt-1_65_1 \
+	   -lboost_system-mgw49-mt-d-1_65_1 \
+	   -lws2_32 -lgtest -lwsock32
+    LIBS =
+	#Like -I"D:/boost_1_65_1" -I"D:/googletest/googletest/include/"
+    INCLUDE_PATH =
+
 else
     DETECTED_OS := $(shell uname -s)
     FILE_SUFFIX := .out
     COMMON_ADD_DIR = $(shell mkdir -p "$(dir $@)" )
     COMMON_CLEAN = $(shell rm -rf "$(BUILD_PATH_BASE)")
+	# -lboost_system -lgtest -lpthread -lm
+    LIBS =
 endif
 
 $(info The system is $(DETECTED_OS))
@@ -47,7 +58,7 @@ INCLUDE_PATH ?=
 LIB_PATH ?=
 
 #library like -lgtest or -l:gtest.a
-LIB ?=
+LIBS ?=
 
 #all path config here
 ifeq ($(OS),Windows_NT)
@@ -78,7 +89,7 @@ endif
 
 DEFAULT: $(OUTPUT)
 $(OUTPUT): $(OBJ)
-	$(CC)  -o $@ $^ $(LIB_PATH) $(LIB)
+	$(CC)  -o $@ $^ $(LIB_PATH) $(LIBS)
 	$(info Link data to >>>>>>>>>> $@)
 
 $(OBJ_PATH)/%.o: $(SRC_PATH)/%.cpp
@@ -91,9 +102,10 @@ clean:
 	$(COMMON_CLEAN)
 	@echo clean data.
 
+USERDEBUG?=
 ARGS?=
 run: $(OUTPUT)
-	$(OUTPUT) $(ARGS)
+	$(USERDEBUG) $(OUTPUT) $(ARGS)
 
 show:
 	echo BUILD_PATH: $(BUILD_PATH)
